@@ -8,7 +8,7 @@ with open('requirements.txt', 'r') as f:
 
 
 setup(
-    name='ml-sso-edx-client',
+    name='ml_sso_edx_client',
     version='1.0',
     description='Client OAuth2 from edX installations',
     author='edX',
