@@ -60,7 +60,7 @@ class PLPRedirection(object):
 
         current_url = request.get_full_path()
         if current_url:
-            start_url =  current_url.split('/')[1]
+            start_url = current_url.split('/')[1]
         else:
             start_url = ''
 
@@ -84,7 +84,7 @@ class PLPRedirection(object):
         if request.path == "/courses/" or request.path == "/courses":
             is_courses_list_or_about_page = True
 
-        if start_url not in handle_local_urls or is_courses_list_or_about_page:
+        if start_url not in handle_local_urls or not is_courses_list_or_about_page:
             # return redirect("%s%s" % (settings.PLP_URL, current_url))
             return redirect("%s%s" % (settings.PLP_URL, ''))
 
