@@ -85,7 +85,8 @@ class PLPRedirection(object):
             is_courses_list_or_about_page = True
 
         if start_url not in handle_local_urls or is_courses_list_or_about_page:
-            return redirect("%s%s" % (settings.PLP_URL, current_url))
+            # return redirect("%s%s" % (settings.PLP_URL, current_url))
+            return redirect("%s%s" % (settings.PLP_URL, ''))
 
         is_auth = request.user.is_authenticated()
         if not is_auth and start_url not in auth_process_urls and \
