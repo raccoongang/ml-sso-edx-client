@@ -31,11 +31,11 @@ DEFAULT_AUTH_PIPELINE = (
 
 class MLBackend(BaseOAuth2):
 
-    name = 'sso_ml-oauth2'
+    name = 'sso_npoed-oauth2'
     ID_KEY = 'username'
     AUTHORIZATION_URL = '{}/OAuth/Authorize'.format(settings.SSO_ML_URL)
     ACCESS_TOKEN_URL = '{}/OAuth/Token'.format(settings.SSO_ML_URL)
-    USER_DATA_URL = '{url}/OAuth/access_token/{access_token}/'
+    REDIRECT_URI = 'http://courses.millionlights.org/auth/complete/sso_npoed-oauth2/'
     DEFAULT_SCOPE = []
     REDIRECT_STATE = False
     ACCESS_TOKEN_METHOD = 'POST'
@@ -66,6 +66,9 @@ class MLBackend(BaseOAuth2):
     def get_user_details(self, response):
         """ Return user details from MIPT account. """
         return response
+
+    def get_redirect_uri(self, state=None):
+        return self.REDIRECT_URI
 
     def user_data(self, access_token, *args, **kwargs):
         """ Grab user profile information from MIPT. """

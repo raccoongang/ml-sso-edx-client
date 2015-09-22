@@ -23,6 +23,12 @@ AUTHENTICATION_BACKENDS = (
 )
 ```
 
+Add middleware classes
+```
+'sso_edx_ml.middleware.PLPRedirection',
+'sso_edx_ml.middleware.SeamlessAuthorization',
+```
+
 Add package templates path `/edx/app/edxapp/venvs/edxapp/src/ml-sso-edx-client/sso_edx_ml/templates`
 ```
 TEMPLATE_DIRS = [
@@ -36,4 +42,9 @@ MAKO_TEMPLATES['main'] = [
                           PROJECT_ROOT / 'templates',
                           ...
                           ]
+```
+
+Open `lms.env.json` and add
+```
+"THIRD_PARTY_AUTH_BACKENDS": "sso_edx_ml.backends.ml.MLBackend"
 ```

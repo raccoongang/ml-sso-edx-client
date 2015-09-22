@@ -15,6 +15,7 @@ class SeamlessAuthorization(object):
         """
         Check multidomain cookie and if user is authenticated on sso, login it on edx
         """
+
         backend = settings.SSO_ML_BACKEND_NAME
         current_url = request.get_full_path()
 
@@ -84,7 +85,7 @@ class PLPRedirection(object):
         if request.path == "/courses/" or request.path == "/courses":
             is_courses_list_or_about_page = True
 
-        if start_url not in handle_local_urls or not is_courses_list_or_about_page:
+        if start_url not in handle_local_urls or is_courses_list_or_about_page:
             # return redirect("%s%s" % (settings.PLP_URL, current_url))
             return redirect("%s%s" % (settings.PLP_URL, ''))
 
