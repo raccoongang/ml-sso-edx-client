@@ -35,7 +35,7 @@ class MLBackend(BaseOAuth2):
     ID_KEY = 'username'
     AUTHORIZATION_URL = '{}/OAuth/Authorize'.format(settings.SSO_ML_URL)
     ACCESS_TOKEN_URL = '{}/OAuth/Token'.format(settings.SSO_ML_URL)
-    REDIRECT_URI = 'http://courses.millionlights.org/auth/complete/sso_npoed-oauth2/'
+    REDIRECT_URI = 'http://lms.millionlights.org/auth/complete/sso_npoed-oauth2/'
     DEFAULT_SCOPE = []
     REDIRECT_STATE = False
     ACCESS_TOKEN_METHOD = 'POST'
