@@ -25,7 +25,7 @@ class SeamlessAuthorization(object):
             if r.match(current_url):
                 return None
 
-        auth_cookie = request.COOKIES.get(self.cookie_name).lower()
+        auth_cookie = request.COOKIES.get(self.cookie_name)
         # auth_cookie_user = request.COOKIES.get('{}_user'.format(self.cookie_name))
         continue_url = reverse('{0}:complete'.format(NAMESPACE),
                                args=(backend,))
