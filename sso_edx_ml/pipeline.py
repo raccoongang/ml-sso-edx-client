@@ -215,9 +215,17 @@ def ensure_user_information(
     data = kwargs['response']
 
     try:
+        data['firstname'] = data.pop('Firstname')
+    except KeyError:
+        raise Exception("First name is required")
+
+    try:
         data['email'] = data.pop('Email')
     except KeyError:
         raise Exception("Email field is required")
+
+    data['lastname'] = data.pop('Firstname') if data.get('Firstname') else ''
+
     data['username'] = data['email'].split("@")[0].replace(".", "")\
         .replace("_", "").replace(" ", "")
 
@@ -229,8 +237,8 @@ def ensure_user_information(
         data['honor_code'] = True
         data['password'] = make_random_password()
         # force name creation if it is empty in sso-profile
-        data['name'] = ' '.join([data.get('Firstname', ''),
-                                 data.get('Lastname', '')]).strip()
+        data['name'] = ' '.join([data['firstname'],
+                                 data['lastname']]).strip()
         data['provider'] = backend.name
 
         if request.session.get('ExternalAuthMap'):
