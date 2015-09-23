@@ -214,6 +214,13 @@ def ensure_user_information(
     response = {}
     data = kwargs['response']
 
+    try:
+        data['email'] = data.pop('Email')
+    except KeyError:
+        raise Exception("Email field is required")
+    data['username'] = data['email'].split("@")[0].replace(".", "")\
+        .replace("_", "").replace(" ", "")
+
     def dispatch_to_register():
         """Force user creation on login or register"""
 
@@ -224,12 +231,6 @@ def ensure_user_information(
         # force name creation if it is empty in sso-profile
         data['name'] = ' '.join([data.get('Firstname', ''),
                                  data.get('Lastname', '')]).strip()
-        try:
-            data['email'] = data.pop('Email')
-        except KeyError:
-            raise Exception("Email field is required")
-        data['username'] = data['email'].split("@")[0].replace(".", "")\
-            .replace("_", "").replace(" ", "")
         data['provider'] = backend.name
 
         if request.session.get('ExternalAuthMap'):
