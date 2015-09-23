@@ -228,7 +228,8 @@ def ensure_user_information(
             data['email'] = data.pop('Email')
         except KeyError:
             raise Exception("Email field is required")
-        data['username'] = data['email']
+        data['username'] = data['email'].split("@")[0].replace(".", "")\
+            .replace("_", "").replace(" ", "")
         data['provider'] = backend.name
 
         if request.session.get('ExternalAuthMap'):
