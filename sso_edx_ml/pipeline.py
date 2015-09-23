@@ -224,7 +224,10 @@ def ensure_user_information(
         # force name creation if it is empty in sso-profile
         data['name'] = ' '.join([data.get('Firstname', ''),
                                  data.get('Lastname', '')]).strip()
-        data['email'] = data.pop('Email')
+        try:
+            data['email'] = data.pop('Email')
+        except KeyError:
+            raise Exception("Email field is required")
         data['username'] = data['email']
         data['provider'] = backend.name
 
