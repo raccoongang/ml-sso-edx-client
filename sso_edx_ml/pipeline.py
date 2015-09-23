@@ -215,16 +215,16 @@ def ensure_user_information(
     data = kwargs['response']
 
     try:
-        data['firstname'] = data.pop('Firstname')
+        data['firstname'] = data['Firstname']
     except KeyError:
         raise Exception("First name is required")
 
     try:
-        data['email'] = data.pop('Email')
+        data['email'] = data['Email']
     except KeyError:
         raise Exception("Email field is required")
 
-    data['lastname'] = data.pop('Firstname') if data.get('Firstname') else ''
+    data['lastname'] = data.pop('Lastname') if data.get('Lastname') else ''
 
     data['username'] = data['email'].split("@")[0].replace(".", "")\
         .replace("_", "").replace(" ", "")
