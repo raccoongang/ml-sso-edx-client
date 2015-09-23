@@ -73,7 +73,7 @@ class MLBackend(BaseOAuth2):
     def user_data(self, access_token, *args, **kwargs):
         """ Grab user profile information from MIPT. """
         return self.get_json(
-            '{}/api/me'.format(settings.SSO_ML_URL),
+            '{}/api/me'.format(settings.SSO_ML_API_URL),
             params={'access_token': access_token},
             headers={'Authorization': 'Bearer {}'.format(access_token)},
         )
