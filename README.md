@@ -44,7 +44,12 @@ MAKO_TEMPLATES['main'] = [
                           ]
 ```
 
-Open `lms.env.json` and add
+Also add
 ```
-"THIRD_PARTY_AUTH_BACKENDS": "sso_edx_ml.backends.ml.MLBackend"
+# SSO
+SSO_ML_URL = 'http://sso.millionlights.org'
+SSO_ML_BACKEND_NAME = 'sso_ml-oauth2'
+PLP_URL = 'https://millionlights.org'
+
+THIRD_PARTY_AUTH_BACKENDS = ('sso_edx_ml.backends.ml.MLBackend',)
 ```
