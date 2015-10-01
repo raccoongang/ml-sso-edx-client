@@ -18,6 +18,7 @@ from third_party_auth.pipeline import (
     make_random_password, NotActivatedException, AuthEntryError
 )
 from opaque_keys.edx.keys import CourseKey
+from social.apps.django_app.default.models import UserSocialAuth
 
 log = logging.getLogger(__name__)
 
@@ -238,7 +239,7 @@ def ensure_user_information(
         data['password'] = make_random_password()
         # force name creation if it is empty in sso-profile
         data['name'] = ' '.join([data['firstname'],
-                                 data['lastname']]).strip()
+                                 data['lastname']]).strip() or data['username']
         data['provider'] = backend.name
 
         if request.session.get('ExternalAuthMap'):
@@ -285,6 +286,16 @@ def ensure_user_information(
             ).strip() or data['username']
 
     user = user or response.get('user')
+    # try:
+    #     user.social_user
+    # except AttributeError:
+    #     if user:
+    #         social_user, created = UserSocialAuth.objects.get_or_create(
+    #             user_id=user.id,
+    #             provider=backend.name,
+    #             uid=backend.get_user_id({}, response),
+    #             defaults={})
+    #         setattr(user, 'social_user', social_user)
     if user and not user.is_active:
         if allow_inactive_user:
             pass

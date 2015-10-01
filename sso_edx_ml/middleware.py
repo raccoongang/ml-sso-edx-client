@@ -15,7 +15,6 @@ class SeamlessAuthorization(object):
         """
         Check multidomain cookie and if user is authenticated on sso, login it on edx
         """
-
         backend = settings.SSO_ML_BACKEND_NAME
         current_url = request.get_full_path()
 
@@ -26,20 +25,19 @@ class SeamlessAuthorization(object):
                 return None
 
         auth_cookie = request.COOKIES.get(self.cookie_name)
-        # auth_cookie_user = request.COOKIES.get('{}_user'.format(self.cookie_name))
+        auth_cookie_user = request.session.get(self.cookie_name)
         continue_url = reverse('{0}:complete'.format(NAMESPACE),
                                args=(backend,))
         is_auth = request.user.is_authenticated()
         # TODO: Need to uncomment after fix PLP
-        # is_same_user = (request.user.username == auth_cookie_user)
+        is_same_user = (auth_cookie == auth_cookie_user)
 
         # Check for infinity redirection loop
         is_continue = (continue_url in current_url)
 
-        # if (auth_cookie and not is_continue and (not is_auth or not is_same_user)) or \
-        #         ('force_auth' in request.session and request.session.pop('force_auth')):
-        if (auth_cookie and not is_continue and not is_auth) or \
-                ('force_auth' in request.session and request.session.pop('force_auth')):
+        request.session[self.cookie_name] = auth_cookie
+        if (auth_cookie and not is_continue and (not is_auth or not is_same_user)) or \
+            ('force_auth' in request.session and request.session.pop('force_auth')):
             query_dict = request.GET.copy()
             query_dict[REDIRECT_FIELD_NAME] = current_url
             query_dict['auth_entry'] = 'login'

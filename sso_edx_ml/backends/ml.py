@@ -5,6 +5,8 @@ from django.conf import settings
 
 from social.utils import handle_http_errors
 from social.backends.oauth import BaseOAuth2
+from enrollment.data import create_course_enrollment
+from django.contrib.auth.models import User
 
 log = logging.getLogger(__name__)
 # log.info(' '.join(["+" * 40]))
@@ -72,11 +74,14 @@ class MLBackend(BaseOAuth2):
 
     def user_data(self, access_token, *args, **kwargs):
         """ Grab user profile information from MIPT. """
-        return self.get_json(
+        user = self.get_json(
             '{}/api/me'.format(settings.SSO_ML_API_URL),
             params={'access_token': access_token},
             headers={'Authorization': 'Bearer {}'.format(access_token)},
         )
+        username = User.objects.get(email=user["Email"]).username
+        self.enroll_user(username, access_token)
+        return user
 
     def do_auth(self, access_token, *args, **kwargs):
         """Finish the auth process once the access_token was retrieved"""
@@ -85,6 +90,24 @@ class MLBackend(BaseOAuth2):
         kwargs.update(data)
         kwargs.update({'response': data, 'backend': self})
         return self.strategy.authenticate(*args, **kwargs)
+
+    def enroll_user(self, username, access_token):
+        if access_token:
+            try:
+                user_courses = self.get_json(
+                    '{}/api/MyCourses'.format(settings.SSO_ML_API_URL),
+                    headers={'Authorization': 'Bearer {}'.format(access_token)},
+                )
+                if len(user_courses):
+                    for course in user_courses:
+                        try:
+                            create_course_enrollment(username, course["LMSCourseId"])
+                        except:
+                            pass
+            except Exception as ex:
+                raise Exception("Failed to fetch courses from Millionlights server. %s" % str(ex))
+        else:
+            raise Exception("Access token is required")
 
 
 class MLBackendCMS(MLBackend):
