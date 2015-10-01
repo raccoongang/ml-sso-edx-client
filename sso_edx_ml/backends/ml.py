@@ -74,14 +74,11 @@ class MLBackend(BaseOAuth2):
 
     def user_data(self, access_token, *args, **kwargs):
         """ Grab user profile information from MIPT. """
-        user = self.get_json(
+        return self.get_json(
             '{}/api/me'.format(settings.SSO_ML_API_URL),
             params={'access_token': access_token},
             headers={'Authorization': 'Bearer {}'.format(access_token)},
         )
-        username = User.objects.get(email=user["Email"]).username
-        self.enroll_user(username, access_token)
-        return user
 
     def do_auth(self, access_token, *args, **kwargs):
         """Finish the auth process once the access_token was retrieved"""
@@ -89,7 +86,13 @@ class MLBackend(BaseOAuth2):
         data['access_token'] = access_token
         kwargs.update(data)
         kwargs.update({'response': data, 'backend': self})
-        return self.strategy.authenticate(*args, **kwargs)
+        pipeline = self.strategy.authenticate(*args, **kwargs)
+        try:
+            username = User.objects.get(email=data["Email"]).username
+            self.enroll_user(username, access_token)
+        except User.DoesNotExist:
+            pass
+        return pipeline
 
     def enroll_user(self, username, access_token):
         if access_token:
