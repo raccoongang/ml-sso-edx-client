@@ -104,7 +104,7 @@ class MLBackend(BaseOAuth2):
                 if len(user_courses):
                     for course in user_courses:
                         try:
-                            create_course_enrollment(username, course["LMSCourseId"])
+                            create_course_enrollment(username, course["CourseLMSId"])
                         except:
                             pass
             except Exception as ex:
