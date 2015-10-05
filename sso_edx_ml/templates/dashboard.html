@@ -78,7 +78,7 @@ import json
     % if len(course_enrollment_pairs) > 0:
       <ul class="listing-courses">
       <% share_settings = settings.FEATURES.get('SOCIAL_SHARING_SETTINGS', {}) %>
-      % for dashboard_index, enrollment in enumerate(course_enrollments):
+      % for dashboard_index, enrollment in enumerate(course_enrollment_pairs):
         <% show_courseware_link = (enrollment.course_id in show_courseware_links_for) %>
         <% cert_status = cert_statuses.get(enrollment.course_id) %>
         <% credit_status = credit_statuses.get(enrollment.course_id) %>
