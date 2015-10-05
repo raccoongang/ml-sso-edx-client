@@ -105,8 +105,8 @@ class MLBackend(BaseOAuth2):
                     for course in user_courses:
                         try:
                             create_course_enrollment(username, course["CourseLMSId"])
-                        except:
-                            pass
+                        except Exception as ex:
+                            print(ex, ex.message)
             except Exception as ex:
                 raise Exception("Failed to fetch courses from Millionlights server. %s" % str(ex))
         else:

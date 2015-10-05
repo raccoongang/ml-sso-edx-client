@@ -75,7 +75,7 @@ import json
     </header>
 
 
-    % if len(course_enrollments) > 0:
+    % if len(course_enrollment_pairs) > 0:
       <ul class="listing-courses">
       <% share_settings = settings.FEATURES.get('SOCIAL_SHARING_SETTINGS', {}) %>
       % for dashboard_index, enrollment in enumerate(course_enrollments):
