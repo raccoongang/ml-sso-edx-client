@@ -79,17 +79,18 @@ import json
       <ul class="listing-courses">
       <% share_settings = settings.FEATURES.get('SOCIAL_SHARING_SETTINGS', {}) %>
       % for dashboard_index, enrollment in enumerate(course_enrollment_pairs):
-        <% show_courseware_link = (enrollment.course_id in show_courseware_links_for) %>
-        <% cert_status = cert_statuses.get(enrollment.course_id) %>
-        <% credit_status = credit_statuses.get(enrollment.course_id) %>
-        <% show_email_settings = (enrollment.course_id in show_email_settings_for) %>
-        <% course_mode_info = all_course_modes.get(enrollment.course_id) %>
-        <% show_refund_option = (enrollment.course_id in show_refund_option_for) %>
-        <% is_paid_course = (enrollment.course_id in enrolled_courses_either_paid) %>
-        <% is_course_blocked = (enrollment.course_id in block_courses) %>
-        <% course_verification_status = verification_status_by_course.get(enrollment.course_id, {}) %>
-        <% course_requirements = courses_requirements_not_met.get(enrollment.course_id) %>
-        <%include file='dashboard/_dashboard_course_listing.html' args="course_overview=enrollment.course_overview, enrollment=enrollment, show_courseware_link=show_courseware_link, cert_status=cert_status, credit_status=credit_status, show_email_settings=show_email_settings, course_mode_info=course_mode_info, show_refund_option=show_refund_option, is_paid_course=is_paid_course, is_course_blocked=is_course_blocked, verification_status=course_verification_status, course_requirements=course_requirements, dashboard_index=dashboard_index, share_settings=share_settings, user=user" />
+        <% course_id = enrollment[0].course_id %>
+        <% show_courseware_link = (course_id in show_courseware_links_for) %>
+        <% cert_status = cert_statuses.get(course_id) %>
+        <% credit_status = credit_statuses.get(course_id) %>
+        <% show_email_settings = (course_id in show_email_settings_for) %>
+        <% course_mode_info = all_course_modes.get(course_id) %>
+        <% show_refund_option = (course_id in show_refund_option_for) %>
+        <% is_paid_course = (course_id in enrolled_courses_either_paid) %>
+        <% is_course_blocked = (course_id in block_courses) %>
+        <% course_verification_status = verification_status_by_course.get(course_id, {}) %>
+        <% course_requirements = courses_requirements_not_met.get(course_id) %>
+        <%include file='dashboard/_dashboard_course_listing.html' args="course_overview=course_overview, enrollment=enrollment[0], show_courseware_link=show_courseware_link, cert_status=cert_status, credit_status=credit_status, show_email_settings=show_email_settings, course_mode_info=course_mode_info, show_refund_option=show_refund_option, is_paid_course=is_paid_course, is_course_blocked=is_course_blocked, verification_status=course_verification_status, course_requirements=course_requirements, dashboard_index=dashboard_index, share_settings=share_settings, user=user" />
       % endfor
 
       </ul>
