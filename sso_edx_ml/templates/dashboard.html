@@ -7,7 +7,6 @@ import third_party_auth
 from third_party_auth import pipeline
 from microsite_configuration import microsite
 from django.core.urlresolvers import reverse
-import json
 %>
 
 <%
@@ -45,13 +44,6 @@ import json
       });
     });
   </script>
-  % if redirect_message:
-    <%static:require_module module_name="js/views/message_banner" class_name="MessageBannerView">
-        var banner = new MessageBannerView({urgency: 'low', type: 'warning'});
-        $('#content').prepend(banner.$el);
-        banner.showMessage(${json.dumps(redirect_message)})
-    </%static:require_module>
-  % endif
 </%block>
 
 <div class="dashboard-notifications" tabindex="-1">
@@ -78,20 +70,27 @@ import json
     % if len(course_enrollment_pairs) > 0:
       <ul class="listing-courses">
       <% share_settings = settings.FEATURES.get('SOCIAL_SHARING_SETTINGS', {}) %>
-      % for dashboard_index, enrollment in enumerate(course_enrollment_pairs):
-        <% course_id = enrollment[0].course_id %>
-        <% show_courseware_link = (course_id in show_courseware_links_for) %>
-        <% cert_status = cert_statuses.get(course_id) %>
-        <% credit_status = credit_statuses.get(course_id) %>
-        <% show_email_settings = (course_id in show_email_settings_for) %>
-        <% course_mode_info = all_course_modes.get(course_id) %>
-        <% show_refund_option = (course_id in show_refund_option_for) %>
-        <% is_paid_course = (course_id in enrolled_courses_either_paid) %>
-        <% is_course_blocked = (course_id in block_courses) %>
-        <% course_verification_status = verification_status_by_course.get(course_id, {}) %>
-        <% course_requirements = courses_requirements_not_met.get(course_id) %>
-        <%include file='dashboard/_dashboard_course_listing.html' args="course_overview=course_overview, enrollment=enrollment[0], show_courseware_link=show_courseware_link, cert_status=cert_status, credit_status=credit_status, show_email_settings=show_email_settings, course_mode_info=course_mode_info, show_refund_option=show_refund_option, is_paid_course=is_paid_course, is_course_blocked=is_course_blocked, verification_status=course_verification_status, course_requirements=course_requirements, dashboard_index=dashboard_index, share_settings=share_settings, user=user" />
+      % for dashboard_index, (course, enrollment) in enumerate(course_enrollment_pairs):
+        <% show_courseware_link = (course.id in show_courseware_links_for) %>
+        <% cert_status = cert_statuses.get(course.id) %>
+        <% credit_status = credit_statuses.get(course.id) %>
+        <% show_email_settings = (course.id in show_email_settings_for) %>
+        <% course_mode_info = all_course_modes.get(course.id) %>
+        <% show_refund_option = (course.id in show_refund_option_for) %>
+        <% is_paid_course = (course.id in enrolled_courses_either_paid) %>
+        <% is_course_blocked = (course.id in block_courses) %>
+        <% course_verification_status = verification_status_by_course.get(course.id, {}) %>
+        <% course_requirements = courses_requirements_not_met.get(course.id) %>
+        <%include file='dashboard/_dashboard_course_listing.html' args="course=course, enrollment=enrollment, show_courseware_link=show_courseware_link, cert_status=cert_status, credit_status=credit_status, show_email_settings=show_email_settings, course_mode_info=course_mode_info, show_refund_option = show_refund_option, is_paid_course = is_paid_course, is_course_blocked = is_course_blocked, verification_status=course_verification_status, course_requirements=course_requirements, dashboard_index=dashboard_index, share_settings=share_settings, user=user" />
       % endfor
+
+      % if settings.FEATURES.get('CUSTOM_COURSES_EDX', False):
+        % for ccx, membership, course in ccx_membership_triplets:
+          <% show_courseware_link = ccx.has_started() %>
+          <% is_course_blocked = False %>
+          <%include file='ccx/_dashboard_ccx_listing.html' args="ccx=ccx, membership=membership, course=course, show_courseware_link=show_courseware_link, is_course_blocked=is_course_blocked" />
+        % endfor
+      % endif
 
       </ul>
     % else:
@@ -124,19 +123,16 @@ import json
     % endif
   </section>
 
-  % if settings.FEATURES.get('IS_EDX_DOMAIN') and settings.FEATURES.get('COURSES_ARE_BROWSABLE'):
-    <div class="wrapper-find-courses">
-      <p class="copy">Check out our recently launched courses and what's new in your favorite subjects</p>
-      <p><a class="btn-find-courses" href="${marketing_link('COURSES')}">${_("Find New Courses")}</a></p>
-    </div>
-  % endif
-
-  <section class="profile-sidebar" id="profile-sidebar" role="region" aria-label="Account Status Info">
+  <section class="profile-sidebar" id="profile-sidebar" role="region" aria-label="User info">
     <header class="profile">
-      <h2 class="account-status-title sr">${_("Account Status Info")}: </h2>
+      <h2 class="username-header"><span class="sr">${_("Username")}: </span></h2>
     </header>
     <section class="user-info">
       <ul>
+        <li class="heads-up">
+          <span class="title">${_("Want to change your account settings?")}</span>
+          <span class="copy">${_("Click the arrow next to your username above.")}</span>
+        </li>
 
         % if len(order_history_list):
         <li class="order-history">
