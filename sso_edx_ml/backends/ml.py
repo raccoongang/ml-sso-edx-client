@@ -106,7 +106,7 @@ class MLBackend(BaseOAuth2):
                         try:
                             create_course_enrollment(
                                 username,
-                                course["CourseLMSId"],
+                                "Millionlights/{}/2015".format(course["CourseLMSId"]),
                                 mode='honor',
                                 is_active=True
                             )
