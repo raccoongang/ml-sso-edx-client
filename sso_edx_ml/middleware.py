@@ -67,7 +67,8 @@ class PLPRedirection(object):
 
         handle_local_urls = ('i18n', 'search', 'verify_student', 'certificates', 'jsi18n',
                             'course_modes',  '404', '500', 'wiki', 'notify', 'courses', 'xblock',
-                            'change_setting', 'account', 'notification_prefs', 'admin', 'survey', 'dashboard')
+                            'change_setting', 'account', 'notification_prefs', 'admin', 'survey',
+                            'my_courses')
         handle_local_urls += auth_process_urls + api_urls
 
         if settings.DEBUG:
