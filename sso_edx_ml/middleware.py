@@ -8,6 +8,7 @@ from django.shortcuts import redirect
 from social.apps.django_app.views import auth, NAMESPACE
 
 from student.models import CourseEnrollment
+from opaque_keys.edx.keys import CourseKey
 
 
 class SeamlessAuthorization(object):
@@ -80,7 +81,7 @@ class PortalRedirection(object):
         r = re.compile(r'^/courses/%s/about' % settings.COURSE_ID_PATTERN)
         rr = re.compile(r'^/courses/%s' % settings.COURSE_ID_PATTERN)
         m = rr.match(current_url)
-        if m:
+        if r.match(current_url):
             is_courses_list_or_about_page = True
 
         if request.path == "/courses/" or request.path == "/courses":
@@ -97,7 +98,7 @@ class PortalRedirection(object):
 
         if is_auth and request.user and m:
             course_key = m.group(1)
-            enrolled_students = CourseEnrollment.objects.users_enrolled_in(course_key)\
+            enrolled_students = CourseEnrollment.objects.users_enrolled_in(CourseKey.from_string(course_key))\
                 .filter(username=request.user.username)
 
             if not enrolled_students:
