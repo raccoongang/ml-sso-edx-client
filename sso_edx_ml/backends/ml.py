@@ -108,7 +108,7 @@ class MLBackend(BaseOAuth2):
                                 mode='honor',
                                 is_active=True
                             )
-                        except Exception as ex:
+                        except:
                             pass
             except Exception as ex:
                 raise Exception("Failed to fetch courses from Millionlights server. %s" % str(ex))
