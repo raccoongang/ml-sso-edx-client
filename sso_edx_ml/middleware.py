@@ -7,6 +7,8 @@ from django.shortcuts import redirect
 
 from social.apps.django_app.views import auth, NAMESPACE
 
+from student.models import CourseEnrollment
+
 
 class SeamlessAuthorization(object):
     cookie_name = 'MillionlightsSSO'
@@ -90,3 +92,10 @@ class PortalRedirection(object):
         if not is_auth and start_url not in auth_process_urls and \
                 start_url not in api_urls:
             request.session['force_auth'] = True
+
+        if is_auth and request.user:
+            enrolled_students = CourseEnrollment.objects.users_enrolled_in(self.course_key)\
+                .filter(username=request.user.username)
+
+            if not enrolled_students:
+                return redirect("%s%s" % (settings.PORTAL_URL, 'Course/AllCourses'))

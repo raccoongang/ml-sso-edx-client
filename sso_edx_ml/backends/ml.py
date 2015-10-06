@@ -1,5 +1,6 @@
 
 import logging
+import json
 
 from django.conf import settings
 
@@ -7,9 +8,6 @@ from social.utils import handle_http_errors
 from social.backends.oauth import BaseOAuth2
 from enrollment.data import create_course_enrollment
 from django.contrib.auth.models import User
-
-log = logging.getLogger(__name__)
-# log.info(' '.join(["+" * 40]))
 
 
 DEFAULT_AUTH_PIPELINE = (
@@ -111,7 +109,7 @@ class MLBackend(BaseOAuth2):
                                 is_active=True
                             )
                         except Exception as ex:
-                            print(ex, ex.message)
+                            pass
             except Exception as ex:
                 raise Exception("Failed to fetch courses from Millionlights server. %s" % str(ex))
         else:
