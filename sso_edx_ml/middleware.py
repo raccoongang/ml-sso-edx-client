@@ -78,7 +78,8 @@ class PortalRedirection(object):
 
         is_courses_list_or_about_page = False
         r = re.compile(r'^/courses/%s/about' % settings.COURSE_ID_PATTERN)
-        m = r.match(current_url)
+        rr = re.compile(r'^/courses/%s' % settings.COURSE_ID_PATTERN)
+        m = rr.match(current_url)
         if m:
             is_courses_list_or_about_page = True
 
