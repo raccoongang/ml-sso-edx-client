@@ -25,12 +25,11 @@ class SeamlessAuthorization(object):
                 return None
 
         auth_cookie = request.COOKIES.get(self.cookie_name)
-        auth_cookie_user = request.session.get(self.cookie_name)
+        auth_cookie_portal = request.session.get(self.cookie_name)
         continue_url = reverse('{0}:complete'.format(NAMESPACE),
                                args=(backend,))
         is_auth = request.user.is_authenticated()
-        # TODO: Need to uncomment after fix PLP
-        is_same_user = (auth_cookie == auth_cookie_user)
+        is_same_user = (auth_cookie == auth_cookie_portal)
 
         # Check for infinity redirection loop
         is_continue = (continue_url in current_url)
@@ -49,11 +48,11 @@ class SeamlessAuthorization(object):
             logout(request)
 
 
-class PLPRedirection(object):
+class PortalRedirection(object):
 
     def process_request(self, request):
         """
-        Redirect to PLP for pages that have duplicated functionality on PLP
+        Redirect to Portal for pages that have duplicated functionality on Portal
         """
 
         current_url = request.get_full_path()
@@ -84,8 +83,8 @@ class PLPRedirection(object):
             is_courses_list_or_about_page = True
 
         if start_url not in handle_local_urls or is_courses_list_or_about_page:
-            # return redirect("%s%s" % (settings.PLP_URL, current_url))
-            return redirect("%s%s" % (settings.PLP_URL, ''))
+            # return redirect("%s%s" % (settings.PORTAL_URL, current_url))
+            return redirect("%s%s" % (settings.PORTAL_URL, ''))
 
         is_auth = request.user.is_authenticated()
         if not is_auth and start_url not in auth_process_urls and \
