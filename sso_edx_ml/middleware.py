@@ -78,10 +78,9 @@ class PortalRedirection(object):
 
         is_courses_list_or_about_page = False
         r = re.compile(r'^/courses/%s/about' % settings.COURSE_ID_PATTERN)
-        c = r.match(current_url)
-        if c:
+        m = r.match(current_url)
+        if m:
             is_courses_list_or_about_page = True
-            course_key = c.group(1)
 
         if request.path == "/courses/" or request.path == "/courses":
             is_courses_list_or_about_page = True
@@ -95,7 +94,8 @@ class PortalRedirection(object):
                 start_url not in api_urls:
             request.session['force_auth'] = True
 
-        if is_auth and request.user:
+        if is_auth and request.user and m:
+            course_key = m.group(1)
             enrolled_students = CourseEnrollment.objects.users_enrolled_in(course_key)\
                 .filter(username=request.user.username)
 
