@@ -101,4 +101,4 @@ class PortalRedirection(object):
                 .filter(username=request.user.username)
 
             if not enrolled_students:
-                return redirect("%s%s" % (settings.PORTAL_URL, 'Course/AllCourses'))
+                return redirect("%s%s" % (settings.PORTAL_URL, '/Course/AllCourses'))
