@@ -102,6 +102,7 @@ class MLBackend(BaseOAuth2):
                 user_courses = self.get_json(
                     '{}/api/MyCourses'.format(settings.SSO_ML_API_URL),
                     headers={'Authorization': 'Bearer {}'.format(access_token)},
+                    verify=False
                 )
                 if len(user_courses):
                     for course in user_courses:
