@@ -77,6 +77,7 @@ class MLBackend(BaseOAuth2):
             '{}/api/me'.format(settings.SSO_ML_API_URL),
             params={'access_token': access_token},
             headers={'Authorization': 'Bearer {}'.format(access_token)},
+            verify=False
         )
 
     def do_auth(self, access_token, *args, **kwargs):
