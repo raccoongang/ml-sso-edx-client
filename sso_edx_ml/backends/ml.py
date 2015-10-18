@@ -7,6 +7,7 @@ from django.conf import settings
 from social.utils import handle_http_errors
 from social.backends.oauth import BaseOAuth2
 from enrollment.data import create_course_enrollment
+from student.models import CourseEnrollment
 from django.contrib.auth.models import User
 
 
@@ -95,6 +96,8 @@ class MLBackend(BaseOAuth2):
     def enroll_user(self, username, access_token):
         if access_token:
             try:
+                qset = CourseEnrollment.objects.filter(is_active=True)
+                qset = qset.filter(user__username=username).delete()
                 user_courses = self.get_json(
                     '{}/api/MyCourses'.format(settings.SSO_ML_API_URL),
                     headers={'Authorization': 'Bearer {}'.format(access_token)},
