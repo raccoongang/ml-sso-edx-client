@@ -97,8 +97,7 @@ class MLBackend(BaseOAuth2):
     def enroll_user(self, username, access_token):
         if access_token:
             try:
-                qset = CourseEnrollment.objects.filter(is_active=True)
-                qset = qset.filter(user__username=username).delete()
+                CourseEnrollment.objects.filter(user__username=username).delete()
                 user_courses = self.get_json(
                     '{}/api/MyCourses'.format(settings.SSO_ML_API_URL),
                     headers={'Authorization': 'Bearer {}'.format(access_token)},
