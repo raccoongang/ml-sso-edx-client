@@ -119,7 +119,7 @@ class MLBackend(BaseOAuth2):
             
     def request(self, url, method='GET', *args, **kwargs):
         kwargs['verify'] = False
-        super(MLBackend, self).request(url, method=method, *args, **kwargs)
+        return super(MLBackend, self).request(url, method=method, *args, **kwargs)
 
 
 class MLBackendCMS(MLBackend):
