@@ -19,7 +19,6 @@ Add `sso_edx_ml.backends.ml.MLBackend` to AUTHENTICATION_BACKENDS
 ```
 AUTHENTICATION_BACKENDS = (
     'sso_edx_ml.backends.ml.MLBackend',
-    'ratelimitbackend.backends.RateLimitModelBackend',
 )
 ```
 
@@ -47,10 +46,13 @@ MAKO_TEMPLATES['main'] = [
 Also add
 ```
 # SSO
-SSO_ML_URL = 'http://sso.millionlights.org'
+PORTAL_URL = 'https://www.millionlights.org'
+SSO_ML_URL = PORTAL_URL
 SSO_ML_BACKEND_NAME = 'sso_ml-oauth2'
-PLP_URL = 'https://millionlights.org'
-SSO_ML_API_URL = 'http://ssores.millionlights.org'
+SSO_ML_API_URL = PORTAL_URL
+SOCIAL_AUTH_ALWAYS_ASSOCIATE = True
+SOCIAL_AUTH_LOGOUT_URL = "{}/{}".format(PORTAL_URL, 'UserRegister/LoginOut')
+SOCIAL_AUTH_EXCLUDE_URL_PATTERN = r'^/admin'
 
 THIRD_PARTY_AUTH_BACKENDS = ('sso_edx_ml.backends.ml.MLBackend',)
 ```
