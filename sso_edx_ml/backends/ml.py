@@ -76,8 +76,7 @@ class MLBackend(BaseOAuth2):
         return self.get_json(
             '{}/api/me'.format(settings.SSO_ML_API_URL),
             params={'access_token': access_token},
-            headers={'Authorization': 'Bearer {}'.format(access_token)},
-            verify=False
+            headers={'Authorization': 'Bearer {}'.format(access_token)}
         )
 
     def do_auth(self, access_token, *args, **kwargs):
@@ -100,8 +99,7 @@ class MLBackend(BaseOAuth2):
                 CourseEnrollment.objects.filter(user__username=username).delete()
                 user_courses = self.get_json(
                     '{}/api/MyCourses'.format(settings.SSO_ML_API_URL),
-                    headers={'Authorization': 'Bearer {}'.format(access_token)},
-                    verify=False
+                    headers={'Authorization': 'Bearer {}'.format(access_token)}
                 )
                 if len(user_courses):
                     for course in user_courses:
@@ -118,6 +116,10 @@ class MLBackend(BaseOAuth2):
                 raise Exception("Failed to fetch courses from Millionlights server. %s" % str(ex))
         else:
             raise Exception("Access token is required")
+            
+    def request(self, url, method='GET', *args, **kwargs):
+        kwargs['verify'] = False
+        super(MLBackend, self).request(url, method=method, *args, **kwargs)
 
 
 class MLBackendCMS(MLBackend):
