@@ -1,4 +1,5 @@
 import re
+import requests
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -102,4 +103,13 @@ class PortalRedirection(object):
                 .filter(username=request.user.username)
 
             if not enrolled_students:
-                return redirect("%s%s" % (settings.PORTAL_URL, '/Course/AllCourses'))
+                try:
+                    response = requests.get(
+                        "{}/api/GetCourseDetails".format(settings.SSO_ML_API_URL), 
+                        params={"lmsCourseId": course_key}, 
+                        verify=False
+                    ).json()
+                    ml_id = response[0]["MLCourseId"]
+                    return redirect("%s%s" % (settings.PORTAL_URL, '/Course/AboutCourse?id=%s&type=&pe=0' % ml_id))
+                except:
+                    return redirect("%s%s" % (settings.PORTAL_URL, '/Course/AllCourses'))
