@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from social.pipeline import partial
 
-from student.views import create_account_with_params, reactivation_email_for_user
+from student.views import create_account_with_params, reactivation_email_for_user, AccountValidationError
 from student.models import UserProfile, CourseAccessRole
 from student.roles import (
     CourseInstructorRole, CourseStaffRole, GlobalStaff, OrgStaffRole,
@@ -178,7 +178,6 @@ AUTH_DISPATCH_URLS = {
     # until every session from before the test ended has expired.
     AUTH_ENTRY_LOGIN_2: '/account/login/',
     AUTH_ENTRY_REGISTER_2: '/account/register/',
-
 }
 
 _AUTH_ENTRY_CHOICES = frozenset([
@@ -211,10 +210,8 @@ def ensure_user_information(
     Ensure that we have the necessary information about a user (either an
     existing account or registration data) to proceed with the pipeline.
     """
-
     response = {}
     data = kwargs['response']
-
     try:
         data['firstname'] = data['Firstname']
     except KeyError:
@@ -248,10 +245,14 @@ def ensure_user_information(
         try:
             user = User.objects.get(email=data['email'])
         except User.DoesNotExist:
-            create_account_with_params(request, data)
-            user = request.user
-            user.is_active = True
-            user.save()
+    	    try:
+                create_account_with_params(request, data)
+    	    except AccountValidationError:
+        		data['username'] = data['email']
+        		create_account_with_params(request, data)
+                    user = request.user
+                    user.is_active = True
+                    user.save()
 
         return {'user': user}
 
@@ -286,16 +287,6 @@ def ensure_user_information(
             ).strip() or data['username']
 
     user = user or response.get('user')
-    # try:
-    #     user.social_user
-    # except AttributeError:
-    #     if user:
-    #         social_user, created = UserSocialAuth.objects.get_or_create(
-    #             user_id=user.id,
-    #             provider=backend.name,
-    #             uid=backend.get_user_id({}, response),
-    #             defaults={})
-    #         setattr(user, 'social_user', social_user)
     if user and not user.is_active:
         if allow_inactive_user:
             pass
