@@ -178,6 +178,7 @@ AUTH_DISPATCH_URLS = {
     # until every session from before the test ended has expired.
     AUTH_ENTRY_LOGIN_2: '/account/login/',
     AUTH_ENTRY_REGISTER_2: '/account/register/',
+
 }
 
 _AUTH_ENTRY_CHOICES = frozenset([
@@ -210,8 +211,10 @@ def ensure_user_information(
     Ensure that we have the necessary information about a user (either an
     existing account or registration data) to proceed with the pipeline.
     """
+    print("pipeline")
     response = {}
     data = kwargs['response']
+    print("got data", data)
     try:
         data['firstname'] = data['Firstname']
     except KeyError:
@@ -245,14 +248,14 @@ def ensure_user_information(
         try:
             user = User.objects.get(email=data['email'])
         except User.DoesNotExist:
-    	    try:
+	    try:
                 create_account_with_params(request, data)
-    	    except AccountValidationError:
-        		data['username'] = data['email']
-        		create_account_with_params(request, data)
-                    user = request.user
-                    user.is_active = True
-                    user.save()
+	    except AccountValidationError:
+		data['username'] = data['email']
+		create_account_with_params(request, data)
+            user = request.user
+            user.is_active = True
+            user.save()
 
         return {'user': user}
 
