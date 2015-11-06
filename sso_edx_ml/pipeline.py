@@ -211,10 +211,8 @@ def ensure_user_information(
     Ensure that we have the necessary information about a user (either an
     existing account or registration data) to proceed with the pipeline.
     """
-    print("pipeline")
     response = {}
     data = kwargs['response']
-    print("got data", data)
     try:
         data['firstname'] = data['Firstname']
     except KeyError:
