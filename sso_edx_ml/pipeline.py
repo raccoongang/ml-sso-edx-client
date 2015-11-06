@@ -270,6 +270,10 @@ def ensure_user_information(
         else:
             raise AuthEntryError(backend, 'auth_entry invalid')
     else:
+    	try:
+            user = User.objects.get(username=data['username'], email=data['email'])
+        except User.DoesNotExist:
+            pass
         user.username = data['username']
         user.first_name = data['firstname']
         user.last_name = data['lastname']
