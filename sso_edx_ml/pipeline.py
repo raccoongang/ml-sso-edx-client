@@ -225,8 +225,8 @@ def ensure_user_information(
 
     data['lastname'] = data.pop('Lastname') if data.get('Lastname') else ''
 
-    data['username'] = data['email'].split("@")[0].replace(".", "")\
-        .replace("_", "").replace(" ", "")
+    data['username'] = data['email'].replace(".", "").replace("@", '')\
+        .replace("_", "").replace(" ", ""). replace("-", '')
 
     def dispatch_to_register():
         """Force user creation on login or register"""
@@ -273,11 +273,10 @@ def ensure_user_information(
     	try:
             user = User.objects.get(username=data['username'], email=data['email'])
         except User.DoesNotExist:
-            pass
-        user.username = data['username']
-        user.first_name = data['firstname']
-        user.last_name = data['lastname']
-        user.save()
+            user.username = data['username']
+            user.first_name = data['firstname']
+            user.last_name = data['lastname']
+            user.save()
 
         try:
             user_profile = UserProfile.objects.get(user=user)
