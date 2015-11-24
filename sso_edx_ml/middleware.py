@@ -1,5 +1,6 @@
 import re
 import requests
+import logging
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -10,6 +11,8 @@ from social.apps.django_app.views import auth, NAMESPACE
 
 from student.models import CourseEnrollment
 from opaque_keys.edx.keys import CourseKey
+
+log = logging.getLogger(__name__)
 
 
 class SeamlessAuthorization(object):
@@ -66,8 +69,11 @@ class PortalRedirection(object):
         current_url = request.get_full_path()
         if current_url:
             start_url = current_url.split('/')[1]
+            start_url = start_url.split('?')[0]
         else:
             start_url = ''
+
+        log.info("Check url '{}' with PortalRedirection middleware".format(start_url))
 
         auth_process_urls = ('oauth2', 'auth', 'login_oauth_token', 'social-logout')
         api_urls = ('api', 'user_api', 'notifier_api', 'update_example_certificate')
