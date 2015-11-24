@@ -246,11 +246,11 @@ def ensure_user_information(
         try:
             user = User.objects.get(email=data['email'])
         except User.DoesNotExist:
-	    try:
+            try:
                 create_account_with_params(request, data)
-	    except AccountValidationError:
-		data['username'] = data['email']
-		create_account_with_params(request, data)
+            except AccountValidationError:
+                data['username'] = data['email']
+                create_account_with_params(request, data)
             user = request.user
             user.is_active = True
             user.save()
@@ -270,7 +270,7 @@ def ensure_user_information(
         else:
             raise AuthEntryError(backend, 'auth_entry invalid')
     else:
-    	try:
+        try:
             user = User.objects.get(username=data['username'], email=data['email'])
         except User.DoesNotExist:
             user.username = data['username']

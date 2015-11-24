@@ -39,6 +39,10 @@ class SeamlessAuthorization(object):
         is_continue = (continue_url in current_url)
 
         request.session[self.cookie_name] = auth_cookie
+
+        if not is_same_user and is_auth:
+            logout(request)
+
         if (auth_cookie and not is_continue and (not is_auth or not is_same_user)) or \
             ('force_auth' in request.session and request.session.pop('force_auth')):
             query_dict = request.GET.copy()
@@ -66,7 +70,7 @@ class PortalRedirection(object):
             start_url = ''
 
         auth_process_urls = ('oauth2', 'auth', 'login_oauth_token', 'social-logout')
-        api_urls = ('api', 'user_api', 'notifier_api')
+        api_urls = ('api', 'user_api', 'notifier_api', 'update_example_certificate')
 
         handle_local_urls = ('i18n', 'search', 'verify_student', 'certificates', 'jsi18n',
                             'course_modes',  '404', '500', 'wiki', 'notify', 'courses', 'xblock',

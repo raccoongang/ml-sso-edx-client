@@ -36,7 +36,7 @@ class MLBackend(BaseOAuth2):
     ID_KEY = 'username'
     AUTHORIZATION_URL = '{}/OAuth2/Authorize'.format(settings.SSO_ML_URL)
     ACCESS_TOKEN_URL = '{}/OAuth2/Token'.format(settings.SSO_ML_URL)
-    REDIRECT_URI = 'http://lms.millionlights.org/auth/complete/sso_ml-oauth2/'
+    REDIRECT_URI = 'https://lms.millionlights.org/auth/complete/sso_ml-oauth2/'
     DEFAULT_SCOPE = []
     REDIRECT_STATE = False
     ACCESS_TOKEN_METHOD = 'POST'
