@@ -1,14 +1,12 @@
 
-import logging
-import json
-
 from django.conf import settings
-
+from django.contrib.auth.models import User
+from social.strategies.utils import get_current_strategy
 from social.utils import handle_http_errors
 from social.backends.oauth import BaseOAuth2
+
 from enrollment.data import create_course_enrollment
 from student.models import CourseEnrollment
-from django.contrib.auth.models import User
 
 
 DEFAULT_AUTH_PIPELINE = (
@@ -120,6 +118,37 @@ class MLBackend(BaseOAuth2):
     def request(self, url, method='GET', *args, **kwargs):
         kwargs['verify'] = False
         return super(MLBackend, self).request(url, method=method, *args, **kwargs)
+
+    def authenticate(self, *args, **kwargs):
+        if 'username' in kwargs and 'password' in kwargs and self.strategy is None:
+            self.strategy = get_current_strategy()
+            if self.strategy:
+                return self.ml_authenticate(kwargs['username'], kwargs['password'])
+        else:
+            return super(MLBackend, self).authenticate(*args, **kwargs)
+
+    def ml_authenticate(self, username, password):
+        response = self.get_json(url=self.access_token_url(),
+                                 method=self.ACCESS_TOKEN_METHOD,
+                                 data=self.get_data(username, password),
+                                 headers=self.auth_headers())
+        self.process_error(response)
+        if 'access_token' in response:
+            try:
+                user = User.objects.get(email=username)
+                return  user
+            except User.DoesNotExist:
+                return None
+
+    def get_data(self, username, password):
+        client_id, client_secret = self.get_key_and_secret()
+        return {
+            'grant_type': 'password',
+            'client_id': client_id,
+            'client_secret': client_secret,
+            'username': username,
+            'password': password
+        }
 
 
 class MLBackendCMS(MLBackend):
