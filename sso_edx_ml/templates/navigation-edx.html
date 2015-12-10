@@ -73,7 +73,14 @@ site_status_msg = get_site_status_msg(course_id)
       <li class="primary">
         <a href="${reverse('dashboard')}" class="user-link">
           <span class="sr">${_("Dashboard for:")}</span>
-          <div>${user.username}</div>
+          <div>
+            ${_("Welcome")}
+            % if user.first_name:
+              ${user.first_name}
+            % else:
+              ${user.email}
+            % endif
+          </div>
         </a>
       </li>
       <li class="primary">
