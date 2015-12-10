@@ -6,6 +6,7 @@ from social.utils import handle_http_errors
 from social.backends.oauth import BaseOAuth2
 
 from enrollment.data import create_course_enrollment
+from student.forms import AccountCreationForm
 from student.models import CourseEnrollment
 
 
@@ -138,7 +139,7 @@ class MLBackend(BaseOAuth2):
                 user = User.objects.get(email=username)
                 return  user
             except User.DoesNotExist:
-                return None
+                return self.create_user(response['access_token'])
 
     def get_data(self, username, password):
         client_id, client_secret = self.get_key_and_secret()
@@ -148,6 +149,50 @@ class MLBackend(BaseOAuth2):
             'client_secret': client_secret,
             'username': username,
             'password': password
+        }
+
+    def create_user(self, access_token):
+        from student.views import _do_create_account
+
+        data = self.user_data(access_token)
+        data = self.change_user_data(data)
+
+        try:
+            user = User.objects.get(email=data["email"])
+        except User.DoesNotExist:
+            form = AccountCreationForm(
+                data=data,
+                extra_fields={},
+                extended_profile_fields={},
+                enforce_username_neq_password=False,
+                enforce_password_policy=False,
+                tos_required=False,
+            )
+            (user, profile, registration) = _do_create_account(form)
+            user.first_name = data['firstname']
+            user.last_name = data['lastname']
+            user.is_active = True
+            user.set_unusable_password()
+            user.save()
+
+        self.enroll_user(user.username, access_token)
+        return user
+
+    def change_user_data(self, data):
+        from third_party_auth.pipeline import make_random_password
+
+        firstname = data.get('Firstname', '')
+        lastname = data.get('Lastname', '')
+        email =  data.get('Email', '')
+        username = email.replace(".", "").replace("@", '').replace("_", "").replace(" ", ""). replace("-", '')
+        name = ' '.join([firstname, lastname]).strip() or username
+        return {
+            'email': email,
+            'firstname': firstname,
+            'lastname': lastname,
+            'username': username,
+            'name': name,
+            'password': make_random_password()
         }
 
 
