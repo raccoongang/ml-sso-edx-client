@@ -1,4 +1,4 @@
-
+import re
 from django.conf import settings
 from django.contrib.auth.models import User
 from social.strategies.utils import get_current_strategy
@@ -184,7 +184,7 @@ class MLBackend(BaseOAuth2):
         firstname = data.get('Firstname', '')
         lastname = data.get('Lastname', '')
         email =  data.get('Email', '')
-        username = email.replace(".", "").replace("@", '').replace("_", "").replace(" ", ""). replace("-", '')
+        username = re.sub('[\W_]', '', email)
         name = ' '.join([firstname, lastname]).strip() or username
         return {
             'email': email,

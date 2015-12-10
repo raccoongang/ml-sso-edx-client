@@ -1,6 +1,7 @@
 import string  # pylint: disable-msg=deprecated-module
-import json
+import json 
 import logging
+import re
 
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.contrib.auth.models import User
@@ -225,8 +226,7 @@ def ensure_user_information(
 
     data['lastname'] = data.pop('Lastname') if data.get('Lastname') else ''
 
-    data['username'] = data['email'].replace(".", "").replace("@", '')\
-        .replace("_", "").replace(" ", ""). replace("-", '')
+    data['username'] = re.sub('[\W_]', '', data['email'])
 
     def dispatch_to_register():
         """Force user creation on login or register"""
