@@ -149,7 +149,7 @@ from branding import api as branding_api
 
   <script>
     $.ajax ({
-      url: "/api/sso_edx_ml/intercom_settings/",
+      url: "${reverse('intercom-settings')}",
       dataType: 'json',
       success: function(data) {
         window.intercomSettings = {
