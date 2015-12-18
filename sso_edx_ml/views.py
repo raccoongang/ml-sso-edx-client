@@ -1,5 +1,8 @@
+import json
+
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.http import HttpResponse
 from django.shortcuts import redirect
 
 
@@ -20,3 +23,9 @@ def logout(request, next_page=None,
 
     return redirect('%s?%s=%s' % (settings.SOCIAL_AUTH_LOGOUT_URL,
                                       redirect_field_name, next_page))
+
+
+def intercom_settings(request):
+    if request.is_ajax():
+        return HttpResponse(json.dumps({'api_id': settings.SSO_ML_INTERCOM_API_ID}),
+                            content_type='application/json')
