@@ -1,6 +1,8 @@
 import re
 from django.conf import settings
 from django.contrib.auth.models import User
+from requests import HTTPError
+from social.exceptions import AuthFailed
 from social.strategies.utils import get_current_strategy
 from social.utils import handle_http_errors
 from social.backends.oauth import BaseOAuth2
@@ -34,7 +36,7 @@ class MLBackend(BaseOAuth2):
     name = 'sso_ml-oauth2'
     ID_KEY = 'username'
     AUTHORIZATION_URL = '{}/OAuth2/Authorize'.format(settings.SSO_ML_URL)
-    ACCESS_TOKEN_URL = '{}/OAuth2/Token'.format(settings.SSO_ML_URL)
+    ACCESS_TOKEN_URL = '{}/oauth2/token'.format(settings.SSO_ML_URL)
     REDIRECT_URI = 'https://lms.millionlights.org/auth/complete/sso_ml-oauth2/'
     DEFAULT_SCOPE = []
     REDIRECT_STATE = False
@@ -124,7 +126,10 @@ class MLBackend(BaseOAuth2):
         if 'username' in kwargs and 'password' in kwargs and self.strategy is None:
             self.strategy = get_current_strategy()
             if self.strategy:
-                return self.ml_authenticate(kwargs['username'], kwargs['password'])
+                try:
+                    return self.ml_authenticate(kwargs['username'], kwargs['password'])
+                except (AuthFailed, HTTPError):
+                    return None
         else:
             return super(MLBackend, self).authenticate(*args, **kwargs)
 
