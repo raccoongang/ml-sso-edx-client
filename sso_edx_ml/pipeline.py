@@ -253,7 +253,10 @@ def ensure_user_information(
                 create_account_with_params(request, data)
             user = request.user
             user.is_active = True
+            user.set_unusable_password()
             user.save()
+
+        del data['password']
 
         return {'user': user}
 
