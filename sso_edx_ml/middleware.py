@@ -66,6 +66,10 @@ class PortalRedirection(object):
         Redirect to Portal for pages that have duplicated functionality on Portal
         """
 
+        # Disallow redirect when login with internal service 
+        if request.META.get('REMOTE_ADDR') in ('127.0.0.1', 'localhost'):
+            return None
+
         current_url = request.get_full_path()
         if current_url:
             start_url = current_url.split('/')[1]
