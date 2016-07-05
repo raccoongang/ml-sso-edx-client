@@ -88,10 +88,12 @@ class MLBackend(BaseOAuth2):
         kwargs.update({'response': data, 'backend': self})
         pipeline = self.strategy.authenticate(*args, **kwargs)
         try:
-            username = User.objects.get(email=data["Email"]).username
-            self.enroll_user(username, access_token)
+            user = User.objects.get(email=data["Email"])
+            self.enroll_user(user.username, access_token)
         except User.DoesNotExist:
             pass
+        else:
+            user.social_auth.extra().update(extra_data=data)
         return pipeline
 
     def enroll_user(self, username, access_token):
@@ -142,9 +144,12 @@ class MLBackend(BaseOAuth2):
         if 'access_token' in response:
             try:
                 user = User.objects.get(email=username)
-                return  user
             except User.DoesNotExist:
-                return self.create_user(response['access_token'])
+                user = self.create_user(response['access_token'])
+            else:
+                user.social_auth.extra().update(extra_data=response)
+            finally:
+                return user
 
     def get_data(self, username, password):
         client_id, client_secret = self.get_key_and_secret()
