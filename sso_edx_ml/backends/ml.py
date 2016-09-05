@@ -117,7 +117,7 @@ class MLBackend(BaseOAuth2):
                 raise Exception("Failed to fetch courses from Millionlights server. %s" % str(ex))
         else:
             raise Exception("Access token is required")
-            
+
     def request(self, url, method='GET', *args, **kwargs):
         kwargs['verify'] = False
         return super(MLBackend, self).request(url, method=method, *args, **kwargs)
@@ -127,11 +127,30 @@ class MLBackend(BaseOAuth2):
             self.strategy = get_current_strategy()
             if self.strategy:
                 try:
-                    return self.ml_authenticate(kwargs['username'], kwargs['password'])
+                    return self.ml_authenticate(
+                        kwargs['username'], kwargs['password']
+                    )
+                except (AuthFailed, HTTPError):
+                    return None
+        elif 'token' in kwargs and self.strategy is None:
+            self.strategy = get_current_strategy()
+            if self.strategy:
+                try:
+                    return self.ml_token_authenticate(kwargs['token'])
                 except (AuthFailed, HTTPError):
                     return None
         else:
             return super(MLBackend, self).authenticate(*args, **kwargs)
+
+    def ml_token_authenticate(self, token):
+        response = self.user_data(token)
+        self.process_error(response)
+        if 'access_token' in response:
+            try:
+                user = User.objects.get(email=username)
+                return user
+            except User.DoesNotExist:
+                return self.create_user(response['access_token'])
 
     def ml_authenticate(self, username, password):
         response = self.get_json(url=self.access_token_url(),
@@ -142,7 +161,7 @@ class MLBackend(BaseOAuth2):
         if 'access_token' in response:
             try:
                 user = User.objects.get(email=username)
-                return  user
+                return user
             except User.DoesNotExist:
                 return self.create_user(response['access_token'])
 
@@ -188,7 +207,7 @@ class MLBackend(BaseOAuth2):
 
         firstname = data.get('Firstname', '')
         lastname = data.get('Lastname', '')
-        email =  data.get('Email', '')
+        email = data.get('Email', '')
         username = re.sub('[\W_]', '', email)
         name = ' '.join([firstname, lastname]).strip() or username
         return {
