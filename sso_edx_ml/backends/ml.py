@@ -143,12 +143,15 @@ class MLBackend(BaseOAuth2):
             return super(MLBackend, self).authenticate(*args, **kwargs)
 
     def ml_token_authenticate(self, token):
-        response = self.user_data(token)
+        response = self.get_json(
+            '{}/api/mobile/v0.5/my_user_info'.format(settings.SSO_ML_API_URL),
+            params={'access_token': token},
+            headers={'Authorization': 'Bearer {}'.format(token)}
+        )
         self.process_error(response)
         if 'access_token' in response:
             try:
-                user = User.objects.get(email=username)
-                return user
+                return User.objects.get(email=username)
             except User.DoesNotExist:
                 return self.create_user(response['access_token'])
 
