@@ -147,12 +147,6 @@ class MLBackend(BaseOAuth2):
             return super(MLBackend, self).authenticate(*args, **kwargs)
 
     def ml_token_authenticate(self, token):
-        # response = self.request(
-        #     '{}/api/me'.format(settings.SSO_ML_API_URL),
-        #     method='GET',
-        #     params={'access_token': token},
-        #     headers={'Authorization': 'Bearer {}'.format(token)}
-        # )
         response = self.user_data(token)
         self.process_error(response)
         if 'Email' in response:

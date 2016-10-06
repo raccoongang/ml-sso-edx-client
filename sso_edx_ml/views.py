@@ -64,9 +64,6 @@ class PasswordGrantForm(provider.oauth2.forms.PasswordGrantForm):
         username = data.get('username')
         password = data.get('password')
         token = self.data.get('token')
-        # log.info('{} {} {} {} !!!!@@@@!!!!'.format(
-        #     token, data, dir(self), self.data)
-        # )
         if token:
             user = authenticate(token=token, username='')
         else:
@@ -125,7 +122,6 @@ class PublicPasswordBackend(object):
             return None
 
         form = PublicPasswordGrantForm(request.REQUEST)
-
         # pylint: disable=no-member
         if form.is_valid():
             return form.cleaned_data.get('client')
@@ -142,32 +138,3 @@ class AccessTokenView(AccessTokenProviderView):
         if not form.is_valid():
             raise OAuthError(form.errors)
         return form.cleaned_data
-
-    # def post(self, request):
-    #     """
-    #     As per :rfc:`3.2` the token endpoint *only* supports POST requests.
-    #     """
-    #     if constants.ENFORCE_SECURE and not request.is_secure():
-    #         return self.error_response({
-    #             'error': 'invalid_request',
-    #             'error_description': _("A secure connection is required.")})
-
-    #     if not 'grant_type' in request.POST:
-    #         return self.error_response({
-    #             'error': 'invalid_request',
-    #             'error_description': _("No 'grant_type' included in the "
-    #                 "request.")})
-
-    #     grant_type = request.POST['grant_type']
-    #     if grant_type not in self.grant_types:
-    #         return self.error_response({'error': 'unsupported_grant_type'})
-
-    #     client = self.authenticate(request)
-    #     if client is None:
-    #         return self.error_response({'error': 'invalid_client'})
-
-    #     handler = self.get_handler(grant_type)
-    #     try:
-    #         return handler(request, request.POST, client)
-    #     except OAuthError, e:
-    #         return self.error_response(e.args[0])
