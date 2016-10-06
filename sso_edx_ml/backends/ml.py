@@ -99,7 +99,9 @@ class MLBackend(BaseOAuth2):
     def enroll_user(self, username, access_token):
         if access_token:
             try:
-                CourseEnrollment.objects.filter(user__username=username).delete()
+                CourseEnrollment.objects.filter(
+                    user__username=username
+                ).delete()
                 user_courses = self.get_json(
                     '{}/api/MyCourses'.format(settings.SSO_ML_API_URL),
                     headers={'Authorization': 'Bearer {}'.format(access_token)}
@@ -119,21 +121,45 @@ class MLBackend(BaseOAuth2):
                 raise Exception("Failed to fetch courses from Millionlights server. %s" % str(ex))
         else:
             raise Exception("Access token is required")
-            
+
     def request(self, url, method='GET', *args, **kwargs):
         kwargs['verify'] = False
         return super(MLBackend, self).request(url, method=method, *args, **kwargs)
 
     def authenticate(self, *args, **kwargs):
-        if 'username' in kwargs and 'password' in kwargs and self.strategy is None:
+        if 'token' in kwargs and self.strategy is None:
             self.strategy = get_current_strategy()
             if self.strategy:
                 try:
-                    return self.ml_authenticate(kwargs['username'], kwargs['password'])
+                    return self.ml_token_authenticate(kwargs['token'])
+                except (AuthFailed, HTTPError):
+                    return None
+        elif 'username' in kwargs and 'password' in kwargs and self.strategy is None:
+            self.strategy = get_current_strategy()
+            if self.strategy:
+                try:
+                    return self.ml_authenticate(
+                        kwargs['username'], kwargs['password']
+                    )
                 except (AuthFailed, HTTPError):
                     return None
         else:
             return super(MLBackend, self).authenticate(*args, **kwargs)
+
+    def ml_token_authenticate(self, token):
+        # response = self.request(
+        #     '{}/api/me'.format(settings.SSO_ML_API_URL),
+        #     method='GET',
+        #     params={'access_token': token},
+        #     headers={'Authorization': 'Bearer {}'.format(token)}
+        # )
+        response = self.user_data(token)
+        self.process_error(response)
+        if 'Email' in response:
+            try:
+                return User.objects.get(email=response.get('Email', ''))
+            except User.DoesNotExist:
+                return self.create_user(token)
 
     def ml_authenticate(self, username, password):
         response = self.get_json(url=self.access_token_url(),
@@ -193,7 +219,7 @@ class MLBackend(BaseOAuth2):
 
         firstname = data.get('Firstname', '')
         lastname = data.get('Lastname', '')
-        email =  data.get('Email', '')
+        email = data.get('Email', '')
         username = re.sub('[\W_]', '', email)
         name = ' '.join([firstname, lastname]).strip() or username
         return {
