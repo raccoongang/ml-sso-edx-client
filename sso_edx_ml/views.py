@@ -63,7 +63,7 @@ class PasswordGrantForm(provider.oauth2.forms.PasswordGrantForm):
         data = self.cleaned_data
         username = data.get('username')
         password = data.get('password')
-        token = self.data.get('token')
+        token = self.data.get('Token')
         if token:
             user = authenticate(token=token, username='')
         else:

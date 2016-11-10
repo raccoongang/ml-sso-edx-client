@@ -220,7 +220,7 @@ class MLBackend(BaseOAuth2):
             'email': email,
             'firstname': firstname,
             'lastname': lastname,
-            'username': username,
+            'username': username[:30],
             'name': name,
             'password': make_random_password()
         }
