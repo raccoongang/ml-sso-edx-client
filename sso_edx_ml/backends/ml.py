@@ -211,16 +211,16 @@ class MLBackend(BaseOAuth2):
     def change_user_data(self, data):
         from third_party_auth.pipeline import make_random_password
 
-        firstname = data.get('Firstname', '')
-        lastname = data.get('Lastname', '')
-        email = data.get('Email', '')
+        firstname = data.get('Firstname', '') or ''
+        lastname = data.get('Lastname', '') or ''
+        email = data.get('Email', '') or ''
         username = re.sub('[\W_]', '', email)
         name = ' '.join([firstname, lastname]).strip() or username
         return {
             'email': email,
             'firstname': firstname,
             'lastname': lastname,
-            'username': username[:30],
+            'username': username[:29],
             'name': name,
             'password': make_random_password()
         }

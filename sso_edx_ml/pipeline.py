@@ -226,7 +226,7 @@ def ensure_user_information(
 
     data['lastname'] = data.pop('Lastname') if data.get('Lastname') else ''
 
-    data['username'] = re.sub('[\W_]', '', data['email'])
+    data['username'] = re.sub('[\W_]', '', data['email'])[:29]
 
     def dispatch_to_register():
         """Force user creation on login or register"""
