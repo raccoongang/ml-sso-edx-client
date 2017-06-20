@@ -11,6 +11,9 @@ from enrollment.data import create_course_enrollment
 from student.forms import AccountCreationForm
 from student.models import CourseEnrollment
 
+import logging
+log = logging.getLogger(__name__)
+
 
 DEFAULT_AUTH_PIPELINE = (
     'third_party_auth.pipeline.parse_query_params',
@@ -37,7 +40,7 @@ class MLBackend(BaseOAuth2):
     ID_KEY = 'username'
     AUTHORIZATION_URL = '{}/OAuth2/Authorize'.format(settings.SSO_ML_URL)
     ACCESS_TOKEN_URL = '{}/oauth2/token'.format(settings.SSO_ML_URL)
-    REDIRECT_URI = 'https://lms.millionlights.org/auth/complete/sso_ml-oauth2/'
+    REDIRECT_URI = 'http://lms1.millionlights.org/auth/complete/sso_ml-oauth2/'
     DEFAULT_SCOPE = []
     REDIRECT_STATE = False
     ACCESS_TOKEN_METHOD = 'POST'
@@ -84,6 +87,7 @@ class MLBackend(BaseOAuth2):
         """Finish the auth process once the access_token was retrieved"""
         data = self.user_data(access_token)
         data['access_token'] = access_token
+        data.setdefault('username', re.sub('[\W_]', '', data.get('UserName') or data.get('Email', ''))[:30])
         kwargs.update(data)
         kwargs.update({'response': data, 'backend': self})
         pipeline = self.strategy.authenticate(*args, **kwargs)
@@ -102,6 +106,7 @@ class MLBackend(BaseOAuth2):
                     '{}/api/MyCourses'.format(settings.SSO_ML_API_URL),
                     headers={'Authorization': 'Bearer {}'.format(access_token)}
                 )
+                log.info('{}   <---------------- data'.format(user_courses))
                 if len(user_courses):
                     for course in user_courses:
                         try:
@@ -211,7 +216,8 @@ class MLBackend(BaseOAuth2):
         firstname = data.get('Firstname', '')
         lastname = data.get('Lastname', '')
         email = data.get('Email', '')
-        username = re.sub('[\W_]', '', email)
+        # username = re.sub('[\W_]', '', email)[:30]
+        username = re.sub('[\W_]', '', data.get('UserName') or email)[:30]
         name = ' '.join([firstname, lastname]).strip() or username
         return {
             'email': email,

@@ -1,5 +1,5 @@
 import string  # pylint: disable-msg=deprecated-module
-import json 
+import json
 import logging
 import re
 
@@ -16,7 +16,7 @@ from student.roles import (
     LibraryUserRole, OrgLibraryUserRole
 )
 from third_party_auth.pipeline import (
-    make_random_password, NotActivatedException, AuthEntryError
+    make_random_password, AuthEntryError
 )
 from opaque_keys.edx.keys import CourseKey
 from social.apps.django_app.default.models import UserSocialAuth
@@ -224,9 +224,10 @@ def ensure_user_information(
     except KeyError:
         raise Exception("Email field is required")
 
+    log.info('{} <><><><><><><><><><><>'.format(data))
     data['lastname'] = data.pop('Lastname') if data.get('Lastname') else ''
-
-    data['username'] = re.sub('[\W_]', '', data['email'])
+    #data['username'] = re.sub('[\W_]', '', data['email'])[:30]
+    data['username'] = re.sub('[\W_]', '', data.get('UserName') or data['Email'])[:30]
 
     def dispatch_to_register():
         """Force user creation on login or register"""
@@ -244,13 +245,15 @@ def ensure_user_information(
             del request.session['ExternalAuthMap']
 
         try:
+            log.info('{} <><><><><><><><><><><> 2'.format(data))
             user = User.objects.get(email=data['email'])
         except User.DoesNotExist:
             try:
                 create_account_with_params(request, data)
             except AccountValidationError:
-                data['username'] = data['email']
+                data['username'] = re.sub('[\W_]', '', data['Email'])[:30]
                 create_account_with_params(request, data)
+                log.info('{} <><><><><><><><><><><> fail'.format(data))
             user = request.user
             user.is_active = True
             user.set_unusable_password()
@@ -274,6 +277,7 @@ def ensure_user_information(
             raise AuthEntryError(backend, 'auth_entry invalid')
     else:
         try:
+            log.info('{} {} <><><><><><><><><><><> 3'.format(data, user))
             user = User.objects.get(username=data['username'], email=data['email'])
         except User.DoesNotExist:
             user.username = data['username']
@@ -299,7 +303,7 @@ def ensure_user_information(
             pass
         elif social is not None:
             reactivation_email_for_user(user)
-            raise NotActivatedException(backend, user.email)
+            raise AuthEntryError(backend, user.email)
 
     # add roles for User
     permissions = kwargs.get('response', {}).get('permissions')
