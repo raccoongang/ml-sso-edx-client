@@ -15,21 +15,6 @@ from opaque_keys.edx.keys import CourseKey
 log = logging.getLogger(__name__)
 
 
-class SeamlessAuthorization2(object):
-    cookie_name = 'MillionlightsSSO'
-
-    def process_request(self, request):
-        #log.info(request)
-        auth_cookie = request.COOKIES#.get(self.cookie_name)
-        #auth_cookie_portal = request.session.get(self.cookie_name)
-        current_url = request.get_full_path()
-        log.info(20*'-')
-        log.info(current_url)
-        log.info(auth_cookie)
-        log.info('{}'.format(dir(request)))#auth_cookie_portal)
-        log.info(settings.COURSE_ID_PATTERN)
-
-
 class SeamlessAuthorization(object):
     cookie_name = 'MillionlightsSSO'
 
@@ -60,15 +45,13 @@ class SeamlessAuthorization(object):
 
         if not is_same_user and is_auth:
             logout(request)
-        #log.info('{} {} {} <---------------'.format(auth_cookie, auth_cookie_portal, continue_url))
-        log.info("{} ----- {} auth_cookie {} is_continue {} is_auth {} is_same_user".format(request.session.items(), auth_cookie, is_continue, is_auth, is_same_user))
+
         if (auth_cookie and not is_continue and (not is_auth or not is_same_user)) or \
             ('force_auth' in request.session and request.session.pop('force_auth')):
             query_dict = request.GET.copy()
             query_dict[REDIRECT_FIELD_NAME] = current_url
             query_dict['auth_entry'] = 'login'
             request.GET = query_dict
-            log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!! {} ".format(query_dict))
             logout(request)
             return auth(request, backend)
         elif not auth_cookie and is_auth:
@@ -115,7 +98,6 @@ class PortalRedirection(object):
         if request.path == "/courses/" or request.path == "/courses":
             is_courses_list_or_about_page = True
 
-        log.info("{} start_url {} handle_local_urls {} is_courses_list_or_about_page".format(start_url, handle_local_urls, is_courses_list_or_about_page))
         if start_url not in handle_local_urls or is_courses_list_or_about_page:
             # return redirect("%s%s" % (settings.PORTAL_URL, current_url))
             return redirect("%s%s" % (settings.PORTAL_URL, ''))
@@ -127,8 +109,9 @@ class PortalRedirection(object):
 
         if is_auth and request.user and m:
             course_key = m.group(1)
-            enrolled_students = CourseEnrollment.objects.users_enrolled_in(CourseKey.from_string(course_key))\
-                .filter(username=request.user.username)
+            enrolled_students = CourseEnrollment.objects.users_enrolled_in(
+                CourseKey.from_string(course_key)
+            ).filter(username=request.user.username)
 
             if not enrolled_students:
                 try:
@@ -140,5 +123,4 @@ class PortalRedirection(object):
                     ml_id = response[0]["MLCourseId"]
                     return redirect("%s%s" % (settings.PORTAL_URL, '/Course/AboutCourse?id=%s&type=&pe=0' % ml_id))
                 except Exception as e:
-                    log.info("{} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@".format(e))
                     return redirect("%s%s" % (settings.PORTAL_URL, '/Course/AllCourses'))

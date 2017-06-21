@@ -106,7 +106,6 @@ class MLBackend(BaseOAuth2):
                     '{}/api/MyCourses'.format(settings.SSO_ML_API_URL),
                     headers={'Authorization': 'Bearer {}'.format(access_token)}
                 )
-                log.info('{}   <---------------- data'.format(user_courses))
                 if len(user_courses):
                     for course in user_courses:
                         try:
@@ -216,7 +215,6 @@ class MLBackend(BaseOAuth2):
         firstname = data.get('Firstname', '')
         lastname = data.get('Lastname', '')
         email = data.get('Email', '')
-        # username = re.sub('[\W_]', '', email)[:30]
         username = re.sub('[\W_]', '', data.get('UserName') or email)[:30]
         name = ' '.join([firstname, lastname]).strip() or username
         return {

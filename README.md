@@ -24,7 +24,7 @@ AUTHENTICATION_BACKENDS = (
 
 Add middleware classes
 ```
-'sso_edx_ml.middleware.PLPRedirection',
+'sso_edx_ml.middleware.PortalRedirection',
 'sso_edx_ml.middleware.SeamlessAuthorization',
 ```
 
@@ -55,4 +55,19 @@ SOCIAL_AUTH_LOGOUT_URL = "{}/{}".format(PORTAL_URL, 'UserRegister/LoginOut')
 SOCIAL_AUTH_EXCLUDE_URL_PATTERN = r'^/admin'
 
 THIRD_PARTY_AUTH_BACKENDS = ('sso_edx_ml.backends.ml.MLBackend',)
+```
+
+Add to lms.env.json
+```
+"FEATURES": {
+    ...
+    "ENABLE_OAUTH2_PROVIDER": true,
+    "ENABLE_THIRD_PARTY_AUTH": true,
+    ...
+}
+
+"TECH_SUPPORT_EMAIL": "support@millionlights.org",
+
+"SITE_NAME": "lms1.millionlights.org",
+
 ```
