@@ -3,7 +3,7 @@ Python package for support sso in open edx for ml project
 
 # Installation:
 ```bash
-pip install -e git+https://github.com/raccoongang/ml-sso-edx-client.git#egg=ml_sso_edx_client
+pip install -e git+https://github.com/raccoongang/ml-sso-edx-client.git@ml-ficus#egg=ml_sso_edx_client
 ```
 
 Add in file lms/envs/common.py. It's preffered to place it somewhere at the top of the list
