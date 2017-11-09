@@ -40,7 +40,7 @@ class MLBackend(BaseOAuth2):
     ID_KEY = 'username'
     AUTHORIZATION_URL = '{}/OAuth2/Authorize'.format(settings.SSO_ML_URL)
     ACCESS_TOKEN_URL = '{}/oauth2/token'.format(settings.SSO_ML_URL)
-    REDIRECT_URI = 'http://lms1.millionlights.org/auth/complete/sso_ml-oauth2/'
+    #REDIRECT_URI = 'http://lms1.millionlights.org/auth/complete/sso_ml-oauth2/'
     DEFAULT_SCOPE = []
     REDIRECT_STATE = False
     ACCESS_TOKEN_METHOD = 'POST'
@@ -72,8 +72,8 @@ class MLBackend(BaseOAuth2):
         """ Return user details from MIPT account. """
         return response
 
-    def get_redirect_uri(self, state=None):
-        return self.REDIRECT_URI
+    #def get_redirect_uri(self, state=None):
+    #    return self.REDIRECT_URI
 
     def user_data(self, access_token, *args, **kwargs):
         """ Grab user profile information from MIPT. """
