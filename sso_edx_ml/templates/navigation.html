@@ -6,13 +6,13 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 
 from microsite_configuration import microsite
-from microsite_configuration.templatetags.microsite import platform_name
 from ccx.overrides import get_current_ccx
 
 # App that handles subdomain specific branding
 import branding
 # app that handles site status messages
 from status.status import get_site_status_msg
+from util.enterprise_helpers import get_enterprise_customer_logo_url
 %>
 
 ## Provide a hook for themes to inject branding on top.
@@ -42,7 +42,14 @@ site_status_msg = get_site_status_msg(course_id)
     <h1 class="logo">
       <a href="${marketing_link('ROOT')}">
         <%block name="navigation_logo">
-            <img src="${static.url(branding.get_logo_url())}" alt="${platform_name()}"/>
+            <%
+            logo_url = get_enterprise_customer_logo_url(request)
+            logo_size = 'ec-logo-size'
+            if logo_url is None:
+                logo_url = branding.api.get_logo_url(is_secure)
+                logo_size = ''
+            %>
+            <img class="${logo_size}" src="${logo_url}" alt="${static.get_platform_name()}"/>
         </%block>
       </a>
     </h1>
