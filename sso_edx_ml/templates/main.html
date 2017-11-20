@@ -1,11 +1,11 @@
 ## coding=utf-8
+<%! main_css = "style-main-v1" %>
 <%namespace name='static' file='static_content.html'/>
 <%!
 from django.core.urlresolvers import reverse
 from django.utils.http import urlquote_plus
 from django.utils.translation import ugettext as _
 from microsite_configuration import microsite
-from microsite_configuration import page_title_breadcrumbs
 from branding import api as branding_api
 %>
 <!DOCTYPE html>
@@ -42,7 +42,7 @@ from branding import api as branding_api
 <%def name="pagetitle()" />
   <%block name="title">
       <title>
-       ${page_title_breadcrumbs(self.pagetitle())}
+       ${static.get_page_title_breadcrumbs(self.pagetitle())}
       </title>
   </%block>
 
@@ -96,12 +96,12 @@ from branding import api as branding_api
   else:
     header_extra_file = microsite.get_template_path('header_extra.html')
 
-    if settings.FEATURES['IS_EDX_DOMAIN'] and not is_microsite():
+    if settings.FEATURES.get('IS_EDX_DOMAIN') and not is_microsite():
         header_file = microsite.get_template_path('navigation-edx.html')
     else:
         header_file = microsite.get_template_path('navigation.html')
 
-    google_analytics_file = microsite.get_template_path('google_analytics.html')
+    ##google_analytics_file = microsite.get_template_path('google_analytics.html')
 
     style_overrides_file = microsite.get_value('css_overrides_file')
 %>
@@ -116,7 +116,7 @@ from branding import api as branding_api
   <meta name="path_prefix" content="${EDX_ROOT_URL}">
   <meta name="google-site-verification" content="_mipQ4AtZQDNmbtOkwehQDOgCxUUV2fb_C0b6wbiRHY" />
 
-  <%include file="${google_analytics_file}" />
+  ##<%include file="${google_analytics_file}" />
 
 % if style_overrides_file:
   <link rel="stylesheet" type="text/css" href="${static.url(style_overrides_file)}" />
@@ -146,19 +146,6 @@ from branding import api as branding_api
 
   <%block name="js_extra"/>
   <script type="text/javascript" src="${static.url('js/vendor/noreferrer.js')}" charset="utf-8"></script>
-
-  <script>
-    $.ajax ({
-      url: "${reverse('intercom-settings')}",
-      dataType: 'json',
-      success: function(data) {
-        window.intercomSettings = {
-          app_id: data.api_id
-        };
-      }
-    })
-  </script>
-  <script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/m38swgns';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
 
 </body>
 </html>
