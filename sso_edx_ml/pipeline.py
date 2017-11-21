@@ -238,7 +238,6 @@ def ensure_user_information(
         # force name creation if it is empty in sso-profile
         data['name'] = ' '.join([data['firstname'],
                                  data['lastname']]).strip() or data['username']
-        data['provider'] = backend.name
 
         if request.session.get('ExternalAuthMap'):
             del request.session['ExternalAuthMap']
