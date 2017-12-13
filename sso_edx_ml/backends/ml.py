@@ -92,7 +92,7 @@ class MLBackend(BaseOAuth2):
         kwargs.update({'response': data, 'backend': self})
         pipeline = self.strategy.authenticate(*args, **kwargs)
         try:
-            username = User.objects.get(email=data["Email"]).username
+            username = User.objects.get(social_auth__uid=data[self.ID_KEY]).username
             self.enroll_user(username, access_token)
         except User.DoesNotExist:
             pass
