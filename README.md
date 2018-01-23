@@ -24,23 +24,8 @@ AUTHENTICATION_BACKENDS = (
 
 Add middleware classes
 ```
-'sso_edx_ml.middleware.PortalRedirection',
 'sso_edx_ml.middleware.SeamlessAuthorization',
-```
-
-Add package templates path `/edx/app/edxapp/venvs/edxapp/src/ml-sso-edx-client/sso_edx_ml/templates`
-```
-TEMPLATE_DIRS = [
-    '/edx/app/edxapp/venvs/edxapp/src/ml-sso-edx-client/sso_edx_ml/templates',
-    PROJECT_ROOT / "templates",
-    ...
-]
-
-MAKO_TEMPLATES['main'] = [
-                          '/edx/app/edxapp/venvs/edxapp/src/ml-sso-edx-client/sso_edx_ml/templates',
-                          PROJECT_ROOT / 'templates',
-                          ...
-                          ]
+'sso_edx_ml.middleware.PortalRedirection',
 ```
 
 Also add
@@ -57,17 +42,12 @@ SOCIAL_AUTH_EXCLUDE_URL_PATTERN = r'^/admin'
 THIRD_PARTY_AUTH_BACKENDS = ('sso_edx_ml.backends.ml.MLBackend',)
 ```
 
-Add to lms.env.json
-```
-"FEATURES": {
-    ...
-    "ENABLE_OAUTH2_PROVIDER": true,
-    "ENABLE_THIRD_PARTY_AUTH": true,
-    ...
-}
-
-"TECH_SUPPORT_EMAIL": "support@millionlights.org",
-
-"SITE_NAME": "lms1.millionlights.org",
+# IF YOU USING BRANCH "millionlights-ficus" FROM https://github.com/raccoongang/edx-platform, JUST ADD THIS:
 
 ```
+"ADDL_MIDDLEWARE_CLASSES": ["sso_edx_ml.middleware.SeamlessAuthorization", "sso_edx_ml.middleware.PortalRedirection"],
+"THIRD_PARTY_AUTH_BACKENDS": ["sso_edx_ml.backends.ml.MLBackend"],
+"ADDL_INSTALLED_APPS": ["sso_edx_ml"],
+"SSO_ML_BACKEND_NAME": "sso_ml-oauth2",
+```
+'''to file /edx/app/edxapp/lms.env.json'''
